@@ -152,7 +152,7 @@ if ($license -eq 'apache-2.0')
 	$readmeFile = Invoke-RestMethod -Uri $readmeUri -Headers $authHeader -Method Get;
 	
 	$licenseBadge = '[![License](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg)](https://github.com/{0}/blob/master/LICENSE)' -f $repoCreationResult.full_name;
-	$updatedReadme = (Get-Content $here\README_Template).replace('REPONAME', $RepoName).replace('LICENSEBADGE', $licenseBadge).replace('REPODESCRIPTION', $RepoDescription);
+	$updatedReadme = (Get-Content $here\README_Template -Raw).replace('REPONAME', $RepoName).replace('LICENSEBADGE', $licenseBadge).replace('REPODESCRIPTION', $RepoDescription);
 	
 	$body = @{
 		message = 'README updated';
@@ -166,7 +166,7 @@ if ($license -eq 'apache-2.0')
 }
 
 # Create NOTICE file
-$noticeFile = (Get-Content $here\NOTICE_Template).replace('REPONAME', $RepoName).replace('REPODESCRIPTION', $RepoDescription);
+$noticeFile = (Get-Content $here\NOTICE_Template -Raw).replace('REPONAME', $RepoName).replace('REPODESCRIPTION', $RepoDescription);
 
 $body = @{
 	message = 'NOTICE file created';
@@ -184,6 +184,7 @@ $body = @{
 	name = "feature";
 	color = "fbca04"
 } | ConvertTo-Json -Compress;
+
 $labelCreationResult = Invoke-RestMethod -Uri $labelUri -Headers $authHeader -Method Post -Body $body;
 Write-Host 'Feature label added to repository' -foregroundcolor "green";
 
@@ -191,6 +192,7 @@ $body = @{
 	name = "onhold";
 	color = "fad8c7"
 } | ConvertTo-Json -Compress;
+
 $labelCreationResult = Invoke-RestMethod -Uri $labelUri -Headers $authHeader -Method Post -Body $body;
 Write-Host 'onhold label added to repository' -foregroundcolor "green";
 
@@ -198,6 +200,7 @@ $body = @{
 	name = "task";
 	color = "0052cc"
 } | ConvertTo-Json -Compress;
+
 $labelCreationResult = Invoke-RestMethod -Uri $labelUri -Headers $authHeader -Method Post -Body $body;
 Write-Host 'task label added to repository' -foregroundcolor "green";
 
