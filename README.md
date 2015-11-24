@@ -7,8 +7,8 @@ PowerShell script for automated repository creation and initialization
 
 1. Create an access token for command-line use (For details see [here](https://help.github.com/articles/creating-an-access-token-for-command-line-use/))
   1. Necessary scopes
-    * repo
-    * write:org (For creation of repos for an organization)
+    * `repo`
+    * `write:org` (For creation of repos for an organization)
 2. Check out the sources from the [`PS.GitHub.RepoCreator`](https://github.com/rufer7/PS.GitHub.RepoCreator) repository
 3. Navigate to the `src` folder
   1. `Config.xml`: Fill in your GitHub username and the access token generated in step 1
