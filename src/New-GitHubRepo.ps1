@@ -145,6 +145,8 @@ else
 $repoCreationResult = Invoke-RestMethod -Uri $creationUri -Headers $authHeader -Method Post -Body $body;
 Write-Host ("Repository '{0}' created" -f $RepoName) -foregroundcolor "green";
 
+Start-Sleep -Seconds 3;
+
 # Add license badge to README
 $readmeUri = 'https://api.github.com/repos/{0}/readme' -f $repoCreationResult.full_name;
 if ($license -eq 'apache-2.0')
@@ -223,8 +225,8 @@ Write-Host 'task label added to repository' -foregroundcolor "green";
 # SIG # Begin signature block
 # MIIQrQYJKoZIhvcNAQcCoIIQnjCCEJoCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUEvEbdkTAihI47dULC/dG+n+5
-# 0Saggg4pMIIGwzCCBaugAwIBAgIPM1H39/fXIF0HCKgJVncoMA0GCSqGSIb3DQEB
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUF4DFbrqB663FVMNy1mdDMENd
+# dZSggg4pMIIGwzCCBaugAwIBAgIPM1H39/fXIF0HCKgJVncoMA0GCSqGSIb3DQEB
 # CwUAMFgxCzAJBgNVBAYTAkNIMRUwEwYDVQQKEwxTd2lzc1NpZ24gQUcxMjAwBgNV
 # BAMTKVN3aXNzU2lnbiBRdWFsaWZpZWQgUGxhdGludW0gQ0EgMjAxMCAtIEcyMB4X
 # DTE1MDYwNDA3NDYzNloXDTE4MDYwNDA3NDYzNlowdjEwMC4GA1UEAxMnTWFyYyBS
@@ -303,12 +305,12 @@ Write-Host 'task label added to repository' -foregroundcolor "green";
 # MAkGA1UEBhMCQ0gxFTATBgNVBAoTDFN3aXNzU2lnbiBBRzEyMDAGA1UEAxMpU3dp
 # c3NTaWduIFF1YWxpZmllZCBQbGF0aW51bSBDQSAyMDEwIC0gRzICDzNR9/f31yBd
 # BwioCVZ3KDAJBgUrDgMCGgUAoFowGAYKKwYBBAGCNwIBDDEKMAigAoAAoQKAADAZ
-# BgkqhkiG9w0BCQMxDAYKKwYBBAGCNwIBBDAjBgkqhkiG9w0BCQQxFgQUb537C/d5
-# ysIGGEBZNNpxoWfU+44wDQYJKoZIhvcNAQEBBQAEggEAPw58zTauLGCGrUARRRBR
-# FtPNyjMNLsXj8w54GCpANepcM8oVQy43aHNuY8PGQfRg2HL3louZsz8xqRJPPGrM
-# QJwYqHiS9ajMj741B7dPZMXAxX4m4m041UfhiSe8zYvdoZHam0rKRC87WA/Wo9+W
-# Z0B+TTpfE3PNekBvUNOFmBAByJfnrwo1DmrwS4V0wS7IIDlsTFkHxKkLaHSpO6eb
-# azBCcyh/leCdSFZIZdzk6FPDQnh9uKQ0zBdnsHk4S2YNcIdhBlqvGukvLPhVKmU+
-# b61xpgz3KTvl7wek1grZCVT2wlb4B0S7vWD4cPBFTN/fbhA13nmu3hwl0iN/K/pi
-# EA==
+# BgkqhkiG9w0BCQMxDAYKKwYBBAGCNwIBBDAjBgkqhkiG9w0BCQQxFgQUPqeSpCfo
+# 6WcIX0nJmvda6DvcwvwwDQYJKoZIhvcNAQEBBQAEggEAJ26N1mxbOnEgnqT7SkaZ
+# WN8NJLwYe+a2x2Ia9DUsNHvI3Yy3zZUp3rLamSRcq+Y4SghjWCxD2IH5zYjKgagA
+# ofMAhRlUr0ANh+onPmOKhTQZaR4Tq6Ntvwvs6rkzpb0xrLRn1Gk1bTeuPx7BQ48Z
+# r9HQJVPqyMtqu9QfGe9N0YXfAqZQIib786LHiMWcFsg58iYlc0OzR9RiXYZW7SIP
+# LJ+16RfNI50nUYElu0e07c5Cr68zs8cNTn3oDl9X8XSR6uTkIR+LhdFj1DUizoeX
+# gL2vsq+7JlmN8C67m821XRx7NMr14QXt7Iw85TPG7pv2Dv6pDg0gRt9rm77GiQVT
+# IA==
 # SIG # End signature block
