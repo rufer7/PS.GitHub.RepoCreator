@@ -6,6 +6,8 @@ PARAM
 	,
 	[String] $RepoDescription = ''
 	,
+	[String] $Homepage =  ''
+	,
 	[String] $Org = $null
 	,
 	[Switch] $Private = $false
@@ -125,6 +127,7 @@ Write-Host ('Selected license template: {0}' -f $license) -foregroundcolor "gree
 $body = @{
 	name = $RepoName;
 	description = $RepoDescription;
+	homepage = $Homepage;
 	private = $Private.IsPresent;
 	has_issues = $HasIssues.IsPresent;
 	has_wiki = $HasWiki.IsPresent;
