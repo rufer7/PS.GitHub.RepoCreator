@@ -150,25 +150,30 @@ Write-Host ("Repository '{0}' created" -f $RepoName) -foregroundcolor "green";
 
 Start-Sleep -Seconds 3;
 
-# Add license badge to README
-$readmeUri = 'https://api.github.com/repos/{0}/readme' -f $repoCreationResult.full_name;
+# Add shields to README
+$licenseShield = '';
 if ($license -eq 'apache-2.0')
 {
-	$readmeFile = Invoke-RestMethod -Uri $readmeUri -Headers $authHeader -Method Get;
-	
-	$licenseBadge = '[![License](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg)](https://github.com/{0}/blob/master/LICENSE)' -f $repoCreationResult.full_name;
-	$updatedReadme = (Get-Content $here\README_Template -Raw).replace('REPONAME', $RepoName).replace('LICENSEBADGE', $licenseBadge).replace('REPODESCRIPTION', $RepoDescription);
-	
-	$body = @{
-		message = 'README updated';
-		content = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes($updatedReadme));
-		sha = $readmeFile.sha;
-	} | ConvertTo-Json -Compress;
-	
-	$contentUri = 'https://api.github.com/repos/{0}/contents/{1}' -f $repoCreationResult.full_name, $readmeFile.path;
-	$readmeUpdateResult = Invoke-RestMethod -Uri $contentUri -Headers $authHeader -Method Put -Body $body;
-	Write-Host 'License badge added to README file' -foregroundcolor "green";
+	$licenseShield = '[![License](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg)](https://github.com/{0}/blob/master/LICENSE)' -f $repoCreationResult.full_name;
 }
+
+$nugetDownloadShield =  '[![NuGet downloads](https://img.shields.io/nuget/dt/{0}.svg)](https://www.nuget.org/packages/{0}/)' -f $RepoName;
+$nugetVersionShield =  '[![Version](https://img.shields.io/nuget/v/{0}.svg)](https://www.nuget.org/packages/{0}/)' -f $RepoName;
+
+$readmeUri = 'https://api.github.com/repos/{0}/readme' -f $repoCreationResult.full_name;
+$readmeFile = Invoke-RestMethod -Uri $readmeUri -Headers $authHeader -Method Get;
+
+$updatedReadme = (Get-Content $here\README_Template -Raw).replace('REPONAME', $RepoName).replace('LICENSESHIELD', $licenseShield).replace('REPODESCRIPTION', $RepoDescription).replace('NUGETDOWNLOADSSHIELD', $nugetDownloadShield).replace('NUGETVERSIONSHIELD', $nugetVersionShield);
+
+$body = @{
+	message = 'README updated';
+	content = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes($updatedReadme));
+	sha = $readmeFile.sha;
+} | ConvertTo-Json -Compress;
+
+$contentUri = 'https://api.github.com/repos/{0}/contents/{1}' -f $repoCreationResult.full_name, $readmeFile.path;
+$readmeUpdateResult = Invoke-RestMethod -Uri $contentUri -Headers $authHeader -Method Put -Body $body;
+Write-Host 'Shields added to README file' -foregroundcolor "green";
 
 # Create NOTICE file
 $noticeFile = (Get-Content $here\NOTICE_Template -Raw).replace('REPONAME', $RepoName).replace('REPODESCRIPTION', $RepoDescription);
