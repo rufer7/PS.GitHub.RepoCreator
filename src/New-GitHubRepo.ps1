@@ -157,13 +157,12 @@ if ($license -eq 'apache-2.0')
 	$licenseShield = '[![License](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg)](https://github.com/{0}/blob/master/LICENSE)' -f $repoCreationResult.full_name;
 }
 
-$nugetDownloadShield =  '[![NuGet downloads](https://img.shields.io/nuget/dt/{0}.svg)](https://www.nuget.org/packages/{0}/)' -f $RepoName;
 $nugetVersionShield =  '[![Version](https://img.shields.io/nuget/v/{0}.svg)](https://www.nuget.org/packages/{0}/)' -f $RepoName;
 
 $readmeUri = 'https://api.github.com/repos/{0}/readme' -f $repoCreationResult.full_name;
 $readmeFile = Invoke-RestMethod -Uri $readmeUri -Headers $authHeader -Method Get;
 
-$updatedReadme = (Get-Content $here\README_Template -Raw).replace('REPONAME', $RepoName).replace('LICENSESHIELD', $licenseShield).replace('REPODESCRIPTION', $RepoDescription).replace('NUGETDOWNLOADSSHIELD', $nugetDownloadShield).replace('NUGETVERSIONSHIELD', $nugetVersionShield);
+$updatedReadme = (Get-Content $here\README_Template -Raw).replace('REPONAME', $RepoName).replace('LICENSESHIELD', $licenseShield).replace('REPODESCRIPTION', $RepoDescription).replace('NUGETVERSIONSHIELD', $nugetVersionShield);
 
 $body = @{
 	message = 'README updated';
