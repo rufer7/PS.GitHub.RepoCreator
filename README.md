@@ -13,7 +13,7 @@ PowerShell script for automated repository creation and initialization
 3. Navigate to the `src` folder
   1. `Config.xml`: Fill in your GitHub username and the access token generated in step 1
   2. `NOTICE_Template`: Adjust the content according your wishes (**IMPORTANT**: The placeholders `REPONAME` and `REPODESCRIPTION` always have to occur at least once in the file)
-  3. `README_Template`: Adjust the content according your wishes (**IMPORTANT**: The placeholders `REPONAME`, `LICENSESHIELD`, `NUGETDOWNLOADSSHIELD`, `NUGETVERSIONSHIELD` and `REPODESCRIPTION` always have to occur at least once in the file)
+  3. `README_Template`: Adjust the content according your wishes (**IMPORTANT**: The placeholders `REPONAME`, `LICENSESHIELD`, `NUGETVERSIONSHIELD` and `REPODESCRIPTION` always have to occur at least once in the file)
 4. Now you're ready to execute the script which will do the following
   1. Creation of a new repository with the selected license and the selected gitignore file
   2. In case you selected `Apache 2.0` as license, it will add a license badge to the README file
