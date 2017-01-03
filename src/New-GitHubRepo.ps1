@@ -1,7 +1,7 @@
 [CmdletBinding()]
 PARAM
 (
-	[Parameter(Mandatory=$true)]
+	[Parameter(Mandatory = $true, Position = 0)]
 	[String] $RepoName
 	,
 	[String] $RepoDescription = ''
