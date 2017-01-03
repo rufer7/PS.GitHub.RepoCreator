@@ -17,17 +17,21 @@ PARAM
 	[Switch] $HasWiki = $true
 )
 
-$ErrorActionPreference = "Stop"
+[string] $configFileName = "Config.xml";
 
-# Create authentication header
+# load config file
 $here = Split-Path -Parent $MyInvocation.MyCommand.Path;
-[xml]$ConfigFile = Get-Content "$here\Config.xml";
-$username = $ConfigFile.Configuration.GitHub.Username;
-$token = $ConfigFile.Configuration.GitHub.Token;
+$pathToConfigFile = "$here\{0}" -f $configFileName;
+Test-Path $pathToConfigFile;
+[xml]$configFile = Get-Content $pathToConfigFile;
+
+# create authentication header
+$username = $configFile.Configuration.GitHub.Username;
+$token = $configFile.Configuration.GitHub.Token;
 $base64AuthInfo = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(("{0}:{1}" -f $username,$token)));
 $authHeader = @{"Authorization"="Basic $base64AuthInfo"};
 
-# Select .gitignore template
+# select .gitignore template
 $gitignoreUri = 'https://api.github.com/gitignore/templates';
 $gitignoreTemplates = Invoke-RestMethod -Uri $gitignoreUri -Headers $authHeader -Method Get;
 
@@ -36,28 +40,28 @@ $gitignoreTemplates = Invoke-RestMethod -Uri $gitignoreUri -Headers $authHeader 
 
 $objForm = New-Object System.Windows.Forms.Form;
 $objForm.Text = "Select a gitignore template";
-$objForm.Size = New-Object System.Drawing.Size(300,400);
+$objForm.Size = New-Object System.Drawing.Size(300, 400);
 $objForm.StartPosition = "CenterScreen";
 
 $objForm.KeyPreview = $true;
 $objForm.Add_KeyDown({if ($_.KeyCode -eq "Enter") {$x=$objListBox.SelectedItem;$objForm.Close()}});
 
-$OKButton = New-Object System.Windows.Forms.Button;
-$OKButton.Location = New-Object System.Drawing.Size(75,320);
-$OKButton.Size = New-Object System.Drawing.Size(112,23);
-$OKButton.Text = "Select";
-$OKButton.Add_Click({$x=$objListBox.SelectedItem;$objForm.Close()});
-$objForm.Controls.Add($OKButton);
+$oKButton = New-Object System.Windows.Forms.Button;
+$oKButton.Location = New-Object System.Drawing.Size(75, 320);
+$oKButton.Size = New-Object System.Drawing.Size(112, 23);
+$oKButton.Text = "Select";
+$oKButton.Add_Click({$x=$objListBox.SelectedItem;$objForm.Close()});
+$objForm.Controls.Add($oKButton);
 
 $objLabel = New-Object System.Windows.Forms.Label;
-$objLabel.Location = New-Object System.Drawing.Size(10,20);
-$objLabel.Size = New-Object System.Drawing.Size(280,20);
+$objLabel.Location = New-Object System.Drawing.Size(10, 20);
+$objLabel.Size = New-Object System.Drawing.Size(280, 20);
 $objLabel.Text = "Please select a gitignore template:";
 $objForm.Controls.Add($objLabel);
 
 $objListBox = New-Object System.Windows.Forms.ListBox;
-$objListBox.Location = New-Object System.Drawing.Size(10,40);
-$objListBox.Size = New-Object System.Drawing.Size(260,20);
+$objListBox.Location = New-Object System.Drawing.Size(10, 40);
+$objListBox.Size = New-Object System.Drawing.Size(260, 20);
 $objListBox.Height = 280;
 
 foreach ($gitignore in $gitignoreTemplates) 
@@ -74,7 +78,7 @@ $gitignoreTemplate = $objListBox.Items[$objListBox.SelectedIndex];
 
 Write-Host ('Selected gitignore template: {0}' -f $gitignoreTemplate) -foregroundcolor "green";
 
-# Select license
+# select license
 # To access the API during the preview period, you must provide a custom media type in the Accept header (application/vnd.github.drax-preview+json)
 $licenseUri = 'https://api.github.com/licenses';
 $acceptHeader = @{"Accept"="application/vnd.github.drax-preview+json"};
@@ -91,12 +95,12 @@ $objForm.StartPosition = "CenterScreen";
 $objForm.KeyPreview = $true;
 $objForm.Add_KeyDown({if ($_.KeyCode -eq "Enter") {$x=$objListBox.SelectedItem;$objForm.Close()}});
 
-$OKButton = New-Object System.Windows.Forms.Button;
-$OKButton.Location = New-Object System.Drawing.Size(75,320);
-$OKButton.Size = New-Object System.Drawing.Size(112,23);
-$OKButton.Text = "Select";
-$OKButton.Add_Click({$x=$objListBox.SelectedItem;$objForm.Close()});
-$objForm.Controls.Add($OKButton);
+$oKButton = New-Object System.Windows.Forms.Button;
+$oKButton.Location = New-Object System.Drawing.Size(75,320);
+$oKButton.Size = New-Object System.Drawing.Size(112,23);
+$oKButton.Text = "Select";
+$oKButton.Add_Click({$x=$objListBox.SelectedItem;$objForm.Close()});
+$objForm.Controls.Add($oKButton);
 
 $objLabel = New-Object System.Windows.Forms.Label;
 $objLabel.Location = New-Object System.Drawing.Size(10,20);
@@ -123,7 +127,7 @@ $license = $licenses[$objListBox.SelectedIndex].key;
 
 Write-Host ('Selected license template: {0}' -f $license) -foregroundcolor "green";
 
-# Create repository
+# create repository
 $body = @{
 	name = $RepoName;
 	description = $RepoDescription;
@@ -150,7 +154,7 @@ Write-Host ("Repository '{0}' created" -f $RepoName) -foregroundcolor "green";
 
 Start-Sleep -Seconds 3;
 
-# Add shields to README
+# add shields to README
 $licenseShield = '';
 if ($license -eq 'apache-2.0')
 {
@@ -174,7 +178,7 @@ $contentUri = 'https://api.github.com/repos/{0}/contents/{1}' -f $repoCreationRe
 $readmeUpdateResult = Invoke-RestMethod -Uri $contentUri -Headers $authHeader -Method Put -Body $body;
 Write-Host 'Shields added to README file' -foregroundcolor "green";
 
-# Create NOTICE file
+# create NOTICE file
 $noticeFile = (Get-Content $here\NOTICE_Template -Raw).replace('REPONAME', $RepoName).replace('REPODESCRIPTION', $RepoDescription);
 
 $body = @{
@@ -186,7 +190,7 @@ $noticeUri = 'https://api.github.com/repos/{0}/contents/NOTICE' -f $repoCreation
 $noticeCreationResult = Invoke-RestMethod -Uri $noticeUri -Headers $authHeader -Method Put -Body $body;
 Write-Host 'NOTICE file created added to repository' -foregroundcolor "green";
 
-# Create labels
+# create labels
 $labelUri = 'https://api.github.com/repos/{0}/labels' -f $repoCreationResult.full_name;
 
 $body = @{
@@ -214,7 +218,7 @@ $labelCreationResult = Invoke-RestMethod -Uri $labelUri -Headers $authHeader -Me
 Write-Host 'task label added to repository' -foregroundcolor "green";
 
 #
-# Copyright 2015 Marc Rufer
+# Copyright 2015-2017 Marc Rufer
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
