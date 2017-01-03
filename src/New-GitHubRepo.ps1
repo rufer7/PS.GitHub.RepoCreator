@@ -1,7 +1,7 @@
 [CmdletBinding()]
 PARAM
 (
-	[Parameter(Mandatory=$true)]
+	[Parameter(Mandatory = $true, Position = 0)]
 	[String] $RepoName
 	,
 	[String] $RepoDescription = ''
@@ -10,54 +10,58 @@ PARAM
 	,
 	[String] $Org = $null
 	,
-	[Switch] $Private = $false
+	[switch] $Private = $false
 	,
-	[Switch] $HasIssues = $true
+	[switch] $HasIssues = $true
 	,
-	[Switch] $HasWiki = $true
+	[switch] $HasWiki = $true
 )
 
-$ErrorActionPreference = "Stop"
+[string] $configFileName = "Config.xml";
 
-# Create authentication header
+# load config file
 $here = Split-Path -Parent $MyInvocation.MyCommand.Path;
-[xml]$ConfigFile = Get-Content "$here\Config.xml";
-$username = $ConfigFile.Configuration.GitHub.Username;
-$token = $ConfigFile.Configuration.GitHub.Token;
+$pathToConfigFile = "$here\{0}" -f $configFileName;
+[xml] $configFile = Get-Content $pathToConfigFile;
+
+# create authentication header
+$username = $configFile.Configuration.GitHub.Username;
+$token = $configFile.Configuration.GitHub.Token;
 $base64AuthInfo = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(("{0}:{1}" -f $username,$token)));
 $authHeader = @{"Authorization"="Basic $base64AuthInfo"};
 
-# Select .gitignore template
+# select .gitignore template
 $gitignoreUri = 'https://api.github.com/gitignore/templates';
 $gitignoreTemplates = Invoke-RestMethod -Uri $gitignoreUri -Headers $authHeader -Method Get;
+$gitignoreTemplates = $gitignoreTemplates | Sort-Object;
 
 [void] [System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms");
 [void] [System.Reflection.Assembly]::LoadWithPartialName("System.Drawing");
 
 $objForm = New-Object System.Windows.Forms.Form;
 $objForm.Text = "Select a gitignore template";
-$objForm.Size = New-Object System.Drawing.Size(300,400);
+$objForm.Size = New-Object System.Drawing.Size(300, 400);
 $objForm.StartPosition = "CenterScreen";
 
 $objForm.KeyPreview = $true;
 $objForm.Add_KeyDown({if ($_.KeyCode -eq "Enter") {$x=$objListBox.SelectedItem;$objForm.Close()}});
 
-$OKButton = New-Object System.Windows.Forms.Button;
-$OKButton.Location = New-Object System.Drawing.Size(75,320);
-$OKButton.Size = New-Object System.Drawing.Size(112,23);
-$OKButton.Text = "Select";
-$OKButton.Add_Click({$x=$objListBox.SelectedItem;$objForm.Close()});
-$objForm.Controls.Add($OKButton);
+$oKButton = New-Object System.Windows.Forms.Button;
+$oKButton.Location = New-Object System.Drawing.Size(75, 320);
+$oKButton.Size = New-Object System.Drawing.Size(112, 23);
+$oKButton.Text = "Select";
+$oKButton.Add_Click({$x=$objListBox.SelectedItem;$objForm.Close()});
+$objForm.Controls.Add($oKButton);
 
 $objLabel = New-Object System.Windows.Forms.Label;
-$objLabel.Location = New-Object System.Drawing.Size(10,20);
-$objLabel.Size = New-Object System.Drawing.Size(280,20);
+$objLabel.Location = New-Object System.Drawing.Size(10, 20);
+$objLabel.Size = New-Object System.Drawing.Size(280, 20);
 $objLabel.Text = "Please select a gitignore template:";
 $objForm.Controls.Add($objLabel);
 
 $objListBox = New-Object System.Windows.Forms.ListBox;
-$objListBox.Location = New-Object System.Drawing.Size(10,40);
-$objListBox.Size = New-Object System.Drawing.Size(260,20);
+$objListBox.Location = New-Object System.Drawing.Size(10, 40);
+$objListBox.Size = New-Object System.Drawing.Size(260, 20);
 $objListBox.Height = 280;
 
 foreach ($gitignore in $gitignoreTemplates) 
@@ -74,11 +78,12 @@ $gitignoreTemplate = $objListBox.Items[$objListBox.SelectedIndex];
 
 Write-Host ('Selected gitignore template: {0}' -f $gitignoreTemplate) -foregroundcolor "green";
 
-# Select license
+# select license
 # To access the API during the preview period, you must provide a custom media type in the Accept header (application/vnd.github.drax-preview+json)
 $licenseUri = 'https://api.github.com/licenses';
 $acceptHeader = @{"Accept"="application/vnd.github.drax-preview+json"};
 $licenses = Invoke-RestMethod -Uri $licenseUri -Headers $acceptHeader -Method Get;
+$licenses = $licenses | Sort-Object -Property name;
 
 [void] [System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms");
 [void] [System.Reflection.Assembly]::LoadWithPartialName("System.Drawing");
@@ -91,12 +96,12 @@ $objForm.StartPosition = "CenterScreen";
 $objForm.KeyPreview = $true;
 $objForm.Add_KeyDown({if ($_.KeyCode -eq "Enter") {$x=$objListBox.SelectedItem;$objForm.Close()}});
 
-$OKButton = New-Object System.Windows.Forms.Button;
-$OKButton.Location = New-Object System.Drawing.Size(75,320);
-$OKButton.Size = New-Object System.Drawing.Size(112,23);
-$OKButton.Text = "Select";
-$OKButton.Add_Click({$x=$objListBox.SelectedItem;$objForm.Close()});
-$objForm.Controls.Add($OKButton);
+$oKButton = New-Object System.Windows.Forms.Button;
+$oKButton.Location = New-Object System.Drawing.Size(75,320);
+$oKButton.Size = New-Object System.Drawing.Size(112,23);
+$oKButton.Text = "Select";
+$oKButton.Add_Click({$x=$objListBox.SelectedItem;$objForm.Close()});
+$objForm.Controls.Add($oKButton);
 
 $objLabel = New-Object System.Windows.Forms.Label;
 $objLabel.Location = New-Object System.Drawing.Size(10,20);
@@ -123,7 +128,7 @@ $license = $licenses[$objListBox.SelectedIndex].key;
 
 Write-Host ('Selected license template: {0}' -f $license) -foregroundcolor "green";
 
-# Create repository
+# create repository
 $body = @{
 	name = $RepoName;
 	description = $RepoDescription;
@@ -150,7 +155,7 @@ Write-Host ("Repository '{0}' created" -f $RepoName) -foregroundcolor "green";
 
 Start-Sleep -Seconds 3;
 
-# Add shields to README
+# add shields to README
 $licenseShield = '';
 if ($license -eq 'apache-2.0')
 {
@@ -174,7 +179,7 @@ $contentUri = 'https://api.github.com/repos/{0}/contents/{1}' -f $repoCreationRe
 $readmeUpdateResult = Invoke-RestMethod -Uri $contentUri -Headers $authHeader -Method Put -Body $body;
 Write-Host 'Shields added to README file' -foregroundcolor "green";
 
-# Create NOTICE file
+# create NOTICE file
 $noticeFile = (Get-Content $here\NOTICE_Template -Raw).replace('REPONAME', $RepoName).replace('REPODESCRIPTION', $RepoDescription);
 
 $body = @{
@@ -186,7 +191,7 @@ $noticeUri = 'https://api.github.com/repos/{0}/contents/NOTICE' -f $repoCreation
 $noticeCreationResult = Invoke-RestMethod -Uri $noticeUri -Headers $authHeader -Method Put -Body $body;
 Write-Host 'NOTICE file created added to repository' -foregroundcolor "green";
 
-# Create labels
+# create labels
 $labelUri = 'https://api.github.com/repos/{0}/labels' -f $repoCreationResult.full_name;
 
 $body = @{
@@ -214,7 +219,7 @@ $labelCreationResult = Invoke-RestMethod -Uri $labelUri -Headers $authHeader -Me
 Write-Host 'task label added to repository' -foregroundcolor "green";
 
 #
-# Copyright 2015 Marc Rufer
+# Copyright 2015-2017 Marc Rufer
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -232,8 +237,8 @@ Write-Host 'task label added to repository' -foregroundcolor "green";
 # SIG # Begin signature block
 # MIIQrQYJKoZIhvcNAQcCoIIQnjCCEJoCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUyWuJB+nR66/spmt4Fn9C4zuU
-# +MGggg4pMIIGwzCCBaugAwIBAgIPM1H39/fXIF0HCKgJVncoMA0GCSqGSIb3DQEB
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUcdg4LlTVHge/dqDIwzigEp3B
+# 7Oaggg4pMIIGwzCCBaugAwIBAgIPM1H39/fXIF0HCKgJVncoMA0GCSqGSIb3DQEB
 # CwUAMFgxCzAJBgNVBAYTAkNIMRUwEwYDVQQKEwxTd2lzc1NpZ24gQUcxMjAwBgNV
 # BAMTKVN3aXNzU2lnbiBRdWFsaWZpZWQgUGxhdGludW0gQ0EgMjAxMCAtIEcyMB4X
 # DTE1MDYwNDA3NDYzNloXDTE4MDYwNDA3NDYzNlowdjEwMC4GA1UEAxMnTWFyYyBS
@@ -312,12 +317,12 @@ Write-Host 'task label added to repository' -foregroundcolor "green";
 # MAkGA1UEBhMCQ0gxFTATBgNVBAoTDFN3aXNzU2lnbiBBRzEyMDAGA1UEAxMpU3dp
 # c3NTaWduIFF1YWxpZmllZCBQbGF0aW51bSBDQSAyMDEwIC0gRzICDzNR9/f31yBd
 # BwioCVZ3KDAJBgUrDgMCGgUAoFowGAYKKwYBBAGCNwIBDDEKMAigAoAAoQKAADAZ
-# BgkqhkiG9w0BCQMxDAYKKwYBBAGCNwIBBDAjBgkqhkiG9w0BCQQxFgQUNlUbDMvp
-# DukTXJLpqrfkcs+nDpgwDQYJKoZIhvcNAQEBBQAEggEAHIjPrZ3mDFdoHPe3XWiy
-# UG8fgk/eQITVViNgtZy7QD2r9QsTGGgJpVuBPLa//L/Rqae7nyh6XYiBbXlwamsZ
-# ImulbSegXH8upkwc5V48NXrqaz2+nD2yvXD830c8PdiyOi0dxdtkMC4stpPXjtge
-# uivz7QbwB9kKT3SdljaDRePnnAuv62s+S3hzD10QvbpuZfTf0oq4wwR6cIzAPKIM
-# 19QVQhgVMCJQKJk6t/NXmz90H4wATIfAo6fiyLMFggYBSBLDfGXlwbLcEssLRodF
-# QP4EgXXJuSRthq6tqp0mZ45tbuxfJ/1FmCBFd4kqMh4nQzpo7vyeAgX/CiC8OGa9
-# Pg==
+# BgkqhkiG9w0BCQMxDAYKKwYBBAGCNwIBBDAjBgkqhkiG9w0BCQQxFgQUa/6JsviS
+# +ynahvGnlLnm0O2gtzMwDQYJKoZIhvcNAQEBBQAEggEAUoHxKwFSmQWaLgRQpNXn
+# 8MPMBofHl8nEBvXLRrTwM1pmtbxpbl6SPhRgACPmCH+A5oEARilJLn7JU9g+g+Ov
+# qmIa7D6t4wlbVRuKWY65WI1ErKpxyES6Q9n9+Wb53BOZ6CFiURR7RTm+YPNIayTm
+# f+GywaV/5g6TMOGLCzbyj5OYzgy8UV2cM+/pl3WMM3vv/CRWNIukML86zTZG3JRf
+# 6j/QJ9JQ0PShSqWBxXpNUbuihYN9ULOMR/dHIYyexDuKQm4hnd3HTipsQBj5B/co
+# mGOIOimVy5RbOfqTPOhEVYcQUvzSZV26dWjNtWUl9+R7L135MQh/cSdsmyE3Vy8p
+# Xg==
 # SIG # End signature block
