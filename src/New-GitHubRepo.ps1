@@ -10,11 +10,11 @@ PARAM
 	,
 	[String] $Org = $null
 	,
-	[Switch] $Private = $false
+	[switch] $Private = $false
 	,
-	[Switch] $HasIssues = $true
+	[switch] $HasIssues = $true
 	,
-	[Switch] $HasWiki = $true
+	[switch] $HasWiki = $true
 )
 
 [string] $configFileName = "Config.xml";
