@@ -22,8 +22,7 @@ PARAM
 # load config file
 $here = Split-Path -Parent $MyInvocation.MyCommand.Path;
 $pathToConfigFile = "$here\{0}" -f $configFileName;
-Test-Path $pathToConfigFile;
-[xml]$configFile = Get-Content $pathToConfigFile;
+[xml] $configFile = Get-Content $pathToConfigFile;
 
 # create authentication header
 $username = $configFile.Configuration.GitHub.Username;
