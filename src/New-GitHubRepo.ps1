@@ -33,6 +33,7 @@ $authHeader = @{"Authorization"="Basic $base64AuthInfo"};
 # select .gitignore template
 $gitignoreUri = 'https://api.github.com/gitignore/templates';
 $gitignoreTemplates = Invoke-RestMethod -Uri $gitignoreUri -Headers $authHeader -Method Get;
+$gitignoreTemplates = $gitignoreTemplates | Sort-Object;
 
 [void] [System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms");
 [void] [System.Reflection.Assembly]::LoadWithPartialName("System.Drawing");
@@ -82,6 +83,7 @@ Write-Host ('Selected gitignore template: {0}' -f $gitignoreTemplate) -foregroun
 $licenseUri = 'https://api.github.com/licenses';
 $acceptHeader = @{"Accept"="application/vnd.github.drax-preview+json"};
 $licenses = Invoke-RestMethod -Uri $licenseUri -Headers $acceptHeader -Method Get;
+$licenses = $licenses | Sort-Object -Property name;
 
 [void] [System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms");
 [void] [System.Reflection.Assembly]::LoadWithPartialName("System.Drawing");
