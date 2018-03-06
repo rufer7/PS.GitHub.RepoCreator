@@ -19,6 +19,9 @@ PARAM
 
 [string] $configFileName = "Config.xml";
 
+# Use TLS 1.2
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+
 # load config file
 $here = Split-Path -Parent $MyInvocation.MyCommand.Path;
 $pathToConfigFile = "$here\{0}" -f $configFileName;
