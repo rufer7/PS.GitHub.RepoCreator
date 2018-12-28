@@ -84,8 +84,8 @@ Write-Host ('Selected gitignore template: {0}' -f $gitignoreTemplate) -foregroun
 # select license
 # To access the API during the preview period, you must provide a custom media type in the Accept header (application/vnd.github.drax-preview+json)
 $licenseUri = 'https://api.github.com/licenses';
-$acceptHeader = @{"Accept"="application/vnd.github.drax-preview+json"};
-$licenses = Invoke-RestMethod -Uri $licenseUri -Headers $acceptHeader -Method Get;
+$headers = @{"Accept"="application/vnd.github.drax-preview+json"; "Authorization"="Basic $base64AuthInfo"};
+$licenses = Invoke-RestMethod -Uri $licenseUri -Headers $headers -Method Get;
 $licenses = $licenses | Sort-Object -Property name;
 
 [void] [System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms");
